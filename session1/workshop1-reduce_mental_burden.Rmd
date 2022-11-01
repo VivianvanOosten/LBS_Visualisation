@@ -1,4 +1,4 @@
----
+W---
 title: "Reduce mental burden in plots"
 author: "Your name goes here"
 date: "`r Sys.Date()`"
@@ -45,7 +45,7 @@ library(skimr)
 library(nycdogs)
 library(sf) # for geospatial visualisation
 
-loadfonts(device="win")
+loadfonts(device="pdf")
 # loadfonts(device="pdf") if you have a mac
 
 ```
@@ -67,7 +67,9 @@ emperors <- vroom(url)
 
 
 emperor_killers <- emperors %>%
-  count(killer) 
+  count(killer) %>%
+  arrange(desc(n))
+emperor_killers
 
 #if you want to use hex codes, gplots::col2hex("colour name") will give you hex code
 # grey70 = #B3B3B3, tomato = #FF6347
@@ -82,11 +84,11 @@ my_colours <- c("grey70", "tomato")
 
 emperor_killers %>% 
   mutate(
-    ___________ = ifelse(killer == "___________", TRUE, FALSE),
+    own_army = ifelse(killer == "Own Army", TRUE, FALSE),
     # use `fct_inorder()` to maintain the way we sorted the data
     killer = fct_inorder(killer)
   ) %>%
-  ggplot(aes(x = n, y = killer, fill = ___________)) +
+  ggplot(aes(x = n, y = killer, fill = own_army)) +
   geom_col() +
   scale_fill_manual(values = my_colours)+
   geom_text(
@@ -100,7 +102,7 @@ emperor_killers %>%
     axis.title.y = element_blank(), 
     legend.position = "none" 
   ) +
-  ___________(values = ___________) +
+  #___________(values = ___________) +
   xlab("number of emperors")
 ```
 

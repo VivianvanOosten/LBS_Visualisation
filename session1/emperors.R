@@ -48,15 +48,15 @@ emperors %>%
     aes(label = n, x = n - .25),
     colour = "white",
     size = 5,
-    hjust = 1,
-    family="Lato" # change font; if you havent installed extra fonts, comment this line out
+    hjust = 1
+    #family="Lato" # change font; if you havent installed extra fonts, comment this line out
   ) +
   theme_minimal() +
   theme(
     axis.title.y = element_blank(),
     legend.position = "none"
   ) +
-  theme(text=element_text(size=16, family="Lato"))+
+  theme(text=element_text(size=16))+
   labs(
     title = "Cause of death of Roman Emperors",
     x= "number of emperors")+
@@ -94,15 +94,15 @@ emperors_assassinated %>%
     aes(label = n, x = n - .25),
     colour = "white",
     size = 5,
-    hjust = 1,
-    family="Lato"
+    hjust = 1
+    #family="Lato"
   ) +
   theme_minimal() +
   theme(
     axis.title.y = element_blank(),
     legend.position = "none"
   ) +
-  theme(text=element_text(size=12, family="Lato"))+
+  theme(text=element_text(size=12))+
   theme(plot.title.position = "plot")+
   
   # change font colour 
