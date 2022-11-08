@@ -78,7 +78,7 @@ ggplot(mtcars) +
   theme_light() +
   labs(
     title = 'Faster cars, fewer gears',
-    subtitle = 'Speedier cars have fewer gears and cylinders',
+    subtitle = 'SGears and cylinders clearly correlate with the speed of cars',
     x = 'Seconds',
     y = 'Gears'
   ) +
