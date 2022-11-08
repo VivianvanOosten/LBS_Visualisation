@@ -1,17 +1,204 @@
+---
+title: "Problem Set "
+author: "Vivian van Oosten"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    highlight: zenburn
+    number_sections: true
+    toc: yes
+    toc_float: yes
+---
 
+```{r, setup, include = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(ggthemes)
+library(lubridate)
+```
 
 # Grading visualisations
 
+We start off by grading the visualisation linked in the problem set.
 
+| Category    | Guideline                      | Rating | Reasoning                                                                                                                                                                                          |
+|----------------------|--------------------------------|------------------|--|
+| Text        | 6-12 word descriptive title    | 1      | The title is 6-12 words and in the right place, but does not clearly describe the take-away message of the graph                                                                                   |
+|             | Subtitle / annotations         | 2      | The smaller caption has the take-away message instead of the title. The labels and other annotations are accurate.                                                                                 |
+|             | Text size                      | 1      | The smaller caption has the take-away message, which should be bigger and the first thing you read when you see the graph. Everything else looks fine.                                             |
+|             | Horizontal text                | 2      | All text is horizontal.                                                                                                                                                                            |
+|             | Direct labels                  | 0      | The lines are not labelled directly but only in a legend, which is not directly near the data or easy to read.                                                                                     |
+|             | Sparingly used labels          | 0      | The ticks on the axis is very small                                                                                                                                                                |
+| Arrangement | Accurate proportions           | 2      | The axes are proportionate and show an accurate representation of the data.                                                                                                                        |
+|             | Ordering                       | 0      | The data from the different categories are not ordered in any recognizable meaningful way, not even alphabetically.                                                                                |
+|             | Equidistant axis intervals     | 2      | Axes are equidistant                                                                                                                                                                               |
+|             | two-dimensional graph          | 2      | No three-dimensional elements were included in the graph                                                                                                                                           |
+|             | Free from decoration           | 2      | No unnecessary decorations were added to the graph                                                                                                                                                 |
+| Color       | Intentional scheme             | 0      | Unclear why the color scheme has been chosen                                                                                                                                                       |
+|             | color used to highlight        | 0      | The color doesn't have meaning. While the text talks about essential and non-essential industries, the color-scheme does not correspond to these categories.                                       |
+|             | Legibility of color            | 2      | These colors will be visible on black or white.                                                                                                                                                    |
+|             | Color-blinded ness             | 0      | We have red and green lines touching each other, which would not be good for colorblindness.                                                                                                       |
+|             | Constrasting                   | 2      | Our background is white so the black text contrasts well against it.                                                                                                                               |
+| Lines       | Muted gridlines                | 2      | We have muted gridlines, except for the 0 that the graph wants to emphasize.                                                                                                                       |
+|             | Border line                    | 2      | There is no border around the graph                                                                                                                                                                |
+|             | Tick marks or axis lines       | 2      | We have axis lines since they are relevant and necessary                                                                                                                                           |
+|             | 1 horizontal, 1 vertical axis  | 2      | There is 1 horizontal and 1 vertical axis.                                                                                                                                                         |
+| Overall     | Significant finding/conclusion | 2      | The graph emphasizes the fact that there was a slowdown in all industries after the national emergency was declared, emphasized by the dotted line showing the date it was declared on.            |
+|             | Appropriate type               | 2      | A line graph is good for timeseries data.                                                                                                                                                          |
+|             | Appropriate precision          | 2      | The labels are shown with the right accuracy, by 2 weeks for the dates and by 10's of percentages                                                                                                  |
+|             | Reinforce take-away message    | 1      | Most things, including the annotated march 13th line and the graph choice emphasize the point made, but the title does not do so. Instead the caption contains what the title should probably be.  |
 
+: This is 33 points out of 48 points total = 68.75% of the total amount of points.
 
-# Worst visualisation
+# Worst visualization
 
+```{r}
 
+data(mtcars)
 
+ggplot(mtcars) +
+  geom_point(aes(x = qsec, y = gear, color = as.factor(cyl)), size = 10) +
+  theme_light() +
+  labs(
+    title = 'Faster cars, fewer gears',
+    subtitle = 'Speedier cars have fewer gears and cylinders',
+    x = 'Seconds',
+    y = 'Gears'
+  ) +
+  theme(panel.background = element_rect(fill = 'grey', color = 'grey'),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  scale_x_continuous(name = 'Seconds', breaks = seq(14,20,by=0.5) , labels = waiver(), limits = c(14,24)) +
+  scale_color_grey()
+
+```
 
 # Stop and Search
 
+We have the stop and search data from the London metropolitan police from their website. We will be using this to analyse the discrimination in searches. First, we read the dataset, clean our names and glimpse to see what we are working with.
 
+```{r}
+df <- read_csv('2022-09/2022-09-metropolitan-stop-and-search.csv') %>%
+  janitor::clean_names()
 
+glimpse(df)
+```
 
+To get an idea of the discrimination present, we start out by seeing how often black people are stopped on the street compared to other ethnicities. We see that, compared to the percentages of the population we know about, black people are stopped and searched disproportionately. Source for the population statistics: <https://www.theguardian.com/law/2019/jan/26/met-police-disproportionately-use-stop-and-search-powers-on-black-people>
+
+```{r}
+# plotting a barplot of searches by ethnicity
+# reordering so that the most frequent is to the left
+ggplot(df, aes(x = forcats::fct_infreq(officer_defined_ethnicity))) +
+  geom_bar() +
+  theme_light() + 
+  labs( # adding labels for clarity
+    title = 'Black people are stopped on the street disproportionately',
+    subtitle = 'While only 15.6% of the population, black people were stopped almost as much as white people (59.8% of the population)',
+    x = 'Officer defined ethnicity',
+    y = 'Number of searches'
+  )
+```
+
+Our hypothesis is that black people are stopped more frequently for some objects than others. We have investigated this hypothesis, and concluded that especially compared to white people, black people are stopped much more to search for offensive weapons compared to the average.
+
+```{r}
+# Computing the total of searches by object
+searches_by_object <- df %>%
+  group_by(object_of_search) %>%
+  summarise(total_searches = n()) 
+
+# Computing the average searches by ethnicity
+average_by_ethnicity <- df %>%
+  group_by(officer_defined_ethnicity) %>% 
+  # count of searches
+  summarise(searches_by_ethnicity = n()) %>%
+  # to facilitate our row-bind, we add all columns we need for the plot
+  mutate(object_of_search = 'Average of all',
+         total_searches = nrow(df), 
+         percentage = searches_by_ethnicity / total_searches )
+
+# Calculating the searches by object and ethnicity
+df %>%
+  group_by(object_of_search, officer_defined_ethnicity) %>%
+  summarise(searches_by_ethnicity = n()) %>%
+  # adding the total by category, for calculating percentages
+  left_join(searches_by_object, by = 'object_of_search') %>%
+  ungroup() %>% 
+  # calculating the percentage stopped by ethnicity
+  mutate(percentage = searches_by_ethnicity/total_searches) %>%
+  #adding the average of the entire population we just calculated
+  bind_rows(average_by_ethnicity) %>%
+  #Only showing the 2 types we want to show
+  filter(object_of_search == 'Average of all' | object_of_search == 'Offensive weapons') %>%
+  
+# plotting the average distribution and the distribution for offensive weapons
+# 
+ggplot(aes(x = officer_defined_ethnicity, y = percentage,
+          fill =object_of_search )) +
+geom_col(position = 'dodge') +
+ theme_light() +
+ labs(
+   title = 'Black people more likely to be stopped for violent weapon searches ',
+   subtitle = 'Compared to white people especially, black people are much more likely to be stopped for violent weapons',
+   x = 'Ethnicity',
+   y = 'Percentage of searches by object',
+   fill = 'Object of Search'
+ ) +
+  # to see the difference between average and offensive weapons
+  scale_fill_manual(values = c('grey','darkred')) 
+
+```
+
+Interestingly, we are using the officer defined ethnicity to analyse this data. To see whether this is an accurate representation of reality, we assess the relationship between self-reported and officer-identified ethnicity. We see that while officers get it wrong regularly, the majority appears to fall within the correct ethnicity.
+
+```{r}
+
+# calculating the count to give it a color
+df %>%
+  group_by(officer_defined_ethnicity, self_defined_ethnicity) %>%
+  summarise(combination = n()) %>%
+
+  #creating the heatmap
+ggplot(aes( x = officer_defined_ethnicity, y = self_defined_ethnicity, fill = combination)) +
+  geom_tile() + 
+  theme_bw() +
+  scale_fill_viridis_c() + # pretty colors
+  labs(
+    title = 'Officers correctly identify ethnicities mostly',
+    subtitles = 'Ethnicity defined by officers is not without mistakes, but are mostly corrected' ,
+    x = 'Self defined',
+    y = 'Officer defined'
+  )
+```
+
+Lastly, we want to assess whether the discrimination distribution has changed over time. We plot the number of
+
+```{r}
+
+df %>%
+  group_by(outcome, outcome_linked_to_object_of_search) %>%
+  summarise(searches = n()) %>%
+  
+ggplot(aes( x = outcome, y = searches, color = outcome_linked_to_object_of_search)) +
+  geom_point() + 
+  geom_smooth(method = 'lm') 
+
+```
